@@ -60,14 +60,53 @@ const fetchISSFlyOverTimes = function(coord, callback) {
   })
 };
 
-const nextISSTimesForMyLocation = function(callback) {
-  if (callback) {
-    const flyovers = callback;
-    for (flyover of flyovers) {
-      console.log(`Next pass at ${Date(flyover.risetime)} for ${flyover.duration} seconds!`)
+// const nextISSTimesForMyLocation = function(callback) {
+//   if (callback) {
+//     const flyovers = callback;
+//     for (flyover of flyovers) {
+//       console.log(`Next pass at ${Date(flyover.risetime)} for ${flyover.duration} seconds!`)
+//     }
+//   }
+// }
+const nextISSTimesForMyLocation = function() {
+  fetchMyIP(function(error, ip) {
+    if (error) {
+      console.log('Could not find IP! Error:', error);
+      return;
     }
-  }
-}
+
+    console.log('IP found!', ip);
+
+    fetchCoordsByIP(ip, function(lat, lon) {
+      if (!lat || !lon) {
+        console.log('Could not find coordinates!');
+        return;
+      }
+
+      console.log('Coordinates found!', lat, lon);
+
+      const coords = {
+        latitude: lat,
+        longitude: lon
+      };
+
+      fetchISSFlyOverTimes(coords, function(error, flyovers) {
+        if (error || !flyovers) {
+          console.log('Could not fetch flyover times!');
+          return;
+        }
+
+        console.log('Success! Calculating flyover times now...');
+
+        for (const flyover of flyovers) {
+          console.log('Next pass at', new Date(flyover.risetime * 1000), 'for', flyover.duration, 'seconds!');
+        }
+      });
+    });
+  });
+};
+
+
 
 
 // const nextISSTimesForMyLocation = function(callback) {
