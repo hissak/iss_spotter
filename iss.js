@@ -38,4 +38,23 @@ const fetchCoordsByIP = function(ip, callback) {
 });
 }
 
-module.exports = { fetchMyIP, fetchCoordsByIP }
+const fetchISSFlyOverTimes = function(coords, callback) {
+  request(`https://iss-flyover.herokuapp.com/json/?lat=${coords.lat}&lon=${coords.long}`, function (error, response, body) {
+    if (error) {
+      callback(error, null);
+      console.log("Something went wrong while finding flyover", error);
+    } else if(response.statusCode !== 200) {
+      callback(true, null);
+      //console.log ('URL:', `https://iss-flyover.herokuapp.com/json/?lat=${coords.lat}&lon=${coords.long}`)
+      console.log('Response status not 200; Something went wrong:', body);
+    }
+    else {const data = JSON.parse(body);
+    if (data.message === 'success') {
+      console.log('Success! Displaying flyovers now...');
+      callback(null, data.response)
+    }
+    }
+  })
+};
+
+module.exports = { fetchMyIP, fetchCoordsByIP, fetchISSFlyOverTimes }
